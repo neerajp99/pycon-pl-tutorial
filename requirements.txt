@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-json-logger
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-grpc
+prometheus-client
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-sqlalchemy
+opentelemetry-exporter-jaeger
+prometheus-fastapi-instrumentator
+prometheus-client
+python-json-logger
+json-logging
+ipdb

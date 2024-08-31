@@ -1,0 +1,72 @@
+version: "3.4"
+
+x-logging: &default-logging
+  driver: loki
+  options:
+    loki-url: "http://localhost:3100/api/prom/push"
+    loki-pipeline-stages: |
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/fastapi_db
+    depends_on:
+      - db
+      - jaeger
+      - prometheus
+      - loki
+    logging: *default-logging
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=fastapi_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    logging: *default-logging
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "6831:6831/udp"
+    logging: *default-logging
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ../config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    logging: *default-logging
+
+  loki:
+    image: grafana/loki:3.0.0
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+      - prometheus
+    logging: *default-logging
+
+volumes:
+  postgres_data:

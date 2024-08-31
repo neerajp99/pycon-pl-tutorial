@@ -11,3 +11,6 @@ then,
 
 then, 
 `docker compose up --build` or `docker-compose up --build`
+
+
+#### Tutorial Slides: https://docs.google.com/presentation/d/1cQSaoS95n0e7ain9iyW-PR2lBG82ovlMPA0-qRQwzbQ/edit?usp=sharing
